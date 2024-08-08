@@ -14,17 +14,7 @@ const Header = () => {
         <Image src={"/logo.svg"} width={50} height={50} alt="logo"></Image>
       </Link>
       {!true ? (
-        <div className="">
-          <Button size={"lg"} className="hidden md:flex">
-            <FaArrowRightToBracket className="mr-2" />
-            Login
-          </Button>
-          <Button size={"icon"} className="flex md:hidden" title="login">
-            <FaArrowRightToBracket />
-          </Button>
-        </div>
-      ) : (
-        <div className="">
+        <div>
           <Button size={"lg"} className="hidden md:flex" variant={"outline"}>
             <FaArrowRightFromBracket className="mr-2" />
             Logout
@@ -36,6 +26,16 @@ const Header = () => {
             variant={"outline"}
           >
             <FaArrowRightFromBracket />
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <Button size={"lg"} className="hidden md:flex">
+            <FaArrowRightToBracket className="mr-2" />
+            Login
+          </Button>
+          <Button size={"icon"} className="flex md:hidden" title="login">
+            <FaArrowRightToBracket />
           </Button>
         </div>
       )}
