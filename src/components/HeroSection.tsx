@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { FaPaperPlane } from "react-icons/fa6";
 import { BsArrowUpRightSquareFill } from "react-icons/bs";
+import Link from "next/link";
 
 const HeroSection = () => {
   return (
@@ -23,13 +24,17 @@ const HeroSection = () => {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4 text-center">
-            <Button variant={"default"} size={"lg"}>
-              Get Started
-              <FaPaperPlane className="ml-2" />
+            <Button variant={"outline"} size={"lg"} asChild>
+              <Link href={"/create-trip"}>
+                Get Started
+                <FaPaperPlane className="ml-2" />
+              </Link>
             </Button>
-            <Button variant={"outline"} size={"lg"}>
-              Learn More
-              <BsArrowUpRightSquareFill className="ml-2 w-5 h-5" />
+            <Button variant={"default"} size={"lg"} asChild>
+              <Link href={"/learn-more"}>
+                Learn More
+                <BsArrowUpRightSquareFill className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
         </div>
