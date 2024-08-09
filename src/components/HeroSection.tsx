@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const HeroSection = () => {
   return (
-    <section className="w-full relative bg-[url(/hero-bg.jpg)] bg-cover bg-center bg-no-repeat rounded-md">
+    <section className="w-full relative bg-[url(/hero-bg.jpg)] bg-cover bg-center bg-no-repeat rounded-md my-10">
       <div className="absolute inset-0 bg-gray-900/75 sm:bg-transparent sm:from-gray-900/95 sm:to-gray-900/25 sm:bg-gradient-to-r t-to-l rounded-md"></div>
 
       <div className="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-screen lg:items-center lg:px-8">
