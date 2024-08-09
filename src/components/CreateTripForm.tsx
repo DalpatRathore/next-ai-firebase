@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { RxActivityLog } from "react-icons/rx";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -67,6 +68,7 @@ const CreateTripForm = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     form.reset();
+    toast.success("Successfully toasted!");
   }
   return (
     <Card className="w-full max-w-7xl mx-auto">
