@@ -46,7 +46,8 @@ import {
 } from "@/components/ui/dialog";
 import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
-import { headers } from "next/headers";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/service/firebase-config";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -83,6 +84,23 @@ const CreateTripForm = () => {
       tripDays: 0,
     },
   });
+  const saveDatatoDB = async (values: any, result: any) => {
+    const user = localStorage.getItem("Guser");
+    if (user) {
+      const docId = Date.now().toString();
+      const userInfo = JSON.parse(user);
+      try {
+        await setDoc(doc(db, "tripsAi", docId), {
+          userSelection: values,
+          tripData: JSON.parse(result),
+          userEmail: userInfo?.email,
+          id: docId,
+        });
+      } catch (error) {
+        toast.error("Something went wrong!");
+      }
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -91,7 +109,6 @@ const CreateTripForm = () => {
         setOpenDialog(true);
         return;
       }
-
       setGenerating(true);
       const { destination, budgetType, travelWith, tripDays } = values;
 
@@ -99,9 +116,9 @@ const CreateTripForm = () => {
       const response = await chatSession.sendMessage(prompt);
 
       const result = response.response.text();
-
-      form.reset();
       toast.success("Trip plan successfully created!");
+      saveDatatoDB(values, result);
+      form.reset();
     } catch (error) {
       toast.error("Sorry something went!");
     } finally {
