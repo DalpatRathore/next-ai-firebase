@@ -24,12 +24,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FaPaperPlane } from "react-icons/fa6";
-import { travelBudgets, travelOptions } from "@/constant/travelOptions";
+import { travelBudgets, travelOptions } from "@/constant/travel-options";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { RxActivityLog } from "react-icons/rx";
 import toast from "react-hot-toast";
+import { chatSession } from "@/service/gemini-api-ai";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -65,11 +66,18 @@ const CreateTripForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const { destination, budgetType, travelWith, tripDays } = values;
+    const prompt = `Generate Travel Plan for Location: ${destination}, for ${tripDays} Days for ${travelWith} with a ${budgetType} budget. Give me a hotels options list with name, address, price, imageUrl, geoCoordinates, rating, descriptions and suggest itinerary with name, details, imageUrl, geoCoordinates, ticketPricing, travelTime each of the location for ${tripDays} days with each day plan with best time to visit in JSON format`;
+    const response = await chatSession.sendMessage(prompt);
+
+    const result = response.response.text();
+
+    console.log(result);
     form.reset();
     toast.success("Successfully toasted!");
-  }
+  };
+
   return (
     <Card className="w-full max-w-7xl mx-auto">
       <CardHeader className="text-center">
