@@ -33,6 +33,20 @@ import { chatSession } from "@/service/gemini-api-ai";
 
 import { TbFidgetSpinner } from "react-icons/tb";
 import TripLoader from "./TripLoader";
+import { FaGoogle } from "react-icons/fa";
+
+import axios from "axios";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useGoogleLogin } from "@react-oauth/google";
+import Image from "next/image";
+import { headers } from "next/headers";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -60,6 +74,7 @@ const formSchema = z.object({
 });
 
 const CreateTripForm = () => {
+  const [openDialog, setOpenDialog] = React.useState(false);
   const [generating, setGenerating] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,6 +86,12 @@ const CreateTripForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const user = localStorage.getItem("Guser");
+      if (!user) {
+        setOpenDialog(true);
+        return;
+      }
+
       setGenerating(true);
       const { destination, budgetType, travelWith, tripDays } = values;
 
@@ -88,194 +109,252 @@ const CreateTripForm = () => {
     }
   };
 
+  const getUserInfo = (tokenInfo: any) => {
+    axios
+      .get(
+        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenInfo?.access_token}`,
+        {
+          headers: {
+            Authorization: `Bearer: ${tokenInfo?.access_token}`,
+            Accept: "Application/json",
+          },
+        }
+      )
+      .then(response => {
+        const userInfo = {
+          name: response.data.name,
+          email: response.data.email,
+          picture: response.data.picture,
+          userId: response.data.sub,
+          accessToken: tokenInfo.access_token,
+        };
+
+        localStorage.setItem("Guser", JSON.stringify(userInfo));
+        toast.success("Login successfully!");
+
+        setOpenDialog(false);
+      });
+  };
+
+  const login = useGoogleLogin({
+    onSuccess: tokenResponse => {
+      // console.log(tokenResponse);
+      getUserInfo(tokenResponse);
+    },
+    onError: err => console.log(err),
+  });
+
   return (
-    <Card className="w-full max-w-7xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="capitalize text-xl">
-          Tell your preferences and get started!
-        </CardTitle>
-        <CardDescription>
-          Enjoy your adventure with AI-crafted itineraries in one click.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 w-full max-w-5xl mx-auto mt-5"
-          >
-            <FormField
-              control={form.control}
-              name="destination"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-lg flex items-center gap-2">
-                    <RxActivityLog /> What is destination of choice?
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="New York" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tripDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-lg flex items-center gap-2">
-                    <RxActivityLog /> How many dayays are you planning your
-                    trip?
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Note:Trip restrict b/w 1 to 30 days.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <>
+      <Dialog open={openDialog}>
+        <DialogContent>
+          <DialogHeader className="space-y-8">
+            <DialogTitle className="flex items-center justify-center gap-2 capitalize">
+              <Image
+                src={"/logo.svg"}
+                width={50}
+                height={50}
+                alt="logo"
+              ></Image>
+              Sign in to the App with Google auth securely
+            </DialogTitle>
 
-            <FormField
-              control={form.control}
-              name="budgetType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-lg flex items-center gap-2">
-                    <RxActivityLog /> What is Your Budget?
-                  </FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex flex-col md:flex-row items-center justify-center gap-5">
-                        {travelBudgets.map(option => (
-                          <Card
-                            key={option.id}
-                            className={cn(
-                              "w-full px-2 transition-colors duration-500",
-                              field.value === option.type &&
-                                "border-r-8 border-l-8 border-indigo-500"
-                            )}
-                          >
-                            <CardHeader>
-                              <CardTitle className="text-2xl">
-                                {option.icon}
-                              </CardTitle>
-                              <CardDescription>
-                                {option.description}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value={option.type} />
-                                </FormControl>
-                                <FormLabel className="font-normal text-center cursor-pointer">
-                                  <p className="text-base capitalize">
-                                    {option.type}
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="travelWith"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-lg flex items-center gap-2">
-                    <RxActivityLog /> Who do you plan on traveling with on your
-                    next adventure?
-                  </FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        {travelOptions.map(option => (
-                          <Card
-                            key={option.id}
-                            className={cn(
-                              "w-full px-2  transition-colors duration-500",
-                              field.value === option.type &&
-                                "border-r-8 border-l-8 border-indigo-500"
-                            )}
-                            // onClick={() => field.onChange(option.type)}
-                          >
-                            <CardHeader>
-                              <CardTitle className="text-2xl">
-                                {option.icon}
-                              </CardTitle>
-                              <CardDescription>
-                                {option.description}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value={option.type} />
-                                </FormControl>
-                                <FormLabel className="font-normal text-center cursor-pointer">
-                                  <p className="text-base capitalize">
-                                    {option.title}
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Separator></Separator>
-            {generating ? (
-              <Button
-                type="submit"
-                className="w-full"
-                size={"lg"}
-                disabled={generating}
-              >
-                Generating Travel Plan{" "}
-                <TbFidgetSpinner className="ml-2 w-4 h-4 animate-spin" />
+            <DialogDescription>
+              <Button className="w-full" onClick={() => login()}>
+                <FaGoogle className="mr-2 w-5 h-5" /> Sign In With Google
               </Button>
-            ) : (
-              <Button
-                type="submit"
-                className="w-full"
-                size={"lg"}
-                disabled={generating}
-              >
-                Generate Trip <FaPaperPlane className="ml-2 w-4 h-4" />
-              </Button>
-            )}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+      <Card className="w-full max-w-7xl mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="capitalize text-xl">
+            Tell your preferences and get started!
+          </CardTitle>
+          <CardDescription>
+            Enjoy your adventure with AI-crafted itineraries in one click.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-8 w-full max-w-5xl mx-auto mt-5"
+            >
+              <FormField
+                control={form.control}
+                name="destination"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-lg flex items-center gap-2">
+                      <RxActivityLog /> What is destination of choice?
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="New York" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tripDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-lg flex items-center gap-2">
+                      <RxActivityLog /> How many dayays are you planning your
+                      trip?
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Note:Trip restrict b/w 1 to 30 days.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {generating && <TripLoader loading={generating}></TripLoader>}
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <FormField
+                control={form.control}
+                name="budgetType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-lg flex items-center gap-2">
+                      <RxActivityLog /> What is Your Budget?
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex flex-col md:flex-row items-center justify-center gap-5">
+                          {travelBudgets.map(option => (
+                            <Card
+                              key={option.id}
+                              className={cn(
+                                "w-full px-2 transition-colors duration-500",
+                                field.value === option.type &&
+                                  "border-r-8 border-l-8 border-indigo-500"
+                              )}
+                            >
+                              <CardHeader>
+                                <CardTitle className="text-2xl">
+                                  {option.icon}
+                                </CardTitle>
+                                <CardDescription>
+                                  {option.description}
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value={option.type} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal text-center cursor-pointer">
+                                    <p className="text-base capitalize">
+                                      {option.type}
+                                    </p>
+                                  </FormLabel>
+                                </FormItem>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="travelWith"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-lg flex items-center gap-2">
+                      <RxActivityLog /> Who do you plan on traveling with on
+                      your next adventure?
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          {travelOptions.map(option => (
+                            <Card
+                              key={option.id}
+                              className={cn(
+                                "w-full px-2  transition-colors duration-500",
+                                field.value === option.type &&
+                                  "border-r-8 border-l-8 border-indigo-500"
+                              )}
+                              // onClick={() => field.onChange(option.type)}
+                            >
+                              <CardHeader>
+                                <CardTitle className="text-2xl">
+                                  {option.icon}
+                                </CardTitle>
+                                <CardDescription>
+                                  {option.description}
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value={option.type} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal text-center cursor-pointer">
+                                    <p className="text-base capitalize">
+                                      {option.title}
+                                    </p>
+                                  </FormLabel>
+                                </FormItem>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Separator></Separator>
+              {generating ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size={"lg"}
+                  disabled={generating}
+                >
+                  Generating Travel Plan{" "}
+                  <TbFidgetSpinner className="ml-2 w-4 h-4 animate-spin" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size={"lg"}
+                  disabled={generating}
+                >
+                  Generate Trip <FaPaperPlane className="ml-2 w-4 h-4" />
+                </Button>
+              )}
+
+              {generating && <TripLoader loading={generating}></TripLoader>}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

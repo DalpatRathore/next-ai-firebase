@@ -34,7 +34,7 @@ const TripLoader = ({ loading }: TripLoaderProps) => {
       <MultiStepLoader
         loadingStates={loadingStates}
         loading={loading}
-        duration={3000}
+        duration={5000}
       />
     </div>
   );
