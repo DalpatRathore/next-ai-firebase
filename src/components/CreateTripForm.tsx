@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -31,6 +30,9 @@ import { Separator } from "./ui/separator";
 import { RxActivityLog } from "react-icons/rx";
 import toast from "react-hot-toast";
 import { chatSession } from "@/service/gemini-api-ai";
+
+import { TbFidgetSpinner } from "react-icons/tb";
+import TripLoader from "./TripLoader";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -58,6 +60,7 @@ const formSchema = z.object({
 });
 
 const CreateTripForm = () => {
+  const [generating, setGenerating] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -67,15 +70,22 @@ const CreateTripForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { destination, budgetType, travelWith, tripDays } = values;
-    const prompt = `Generate Travel Plan for Location: ${destination}, for ${tripDays} Days for ${travelWith} with a ${budgetType} budget. Give me a hotels options list with name, address, price, imageUrl, geoCoordinates, rating, descriptions and suggest itinerary with name, details, imageUrl, geoCoordinates, ticketPricing, travelTime each of the location for ${tripDays} days with each day plan with best time to visit in JSON format`;
-    const response = await chatSession.sendMessage(prompt);
+    try {
+      setGenerating(true);
+      const { destination, budgetType, travelWith, tripDays } = values;
 
-    const result = response.response.text();
+      const prompt = `Generate Travel Plan for Location: ${destination}, for ${tripDays} Days for ${travelWith} with a ${budgetType} budget. Give me a hotels options list with name, address, price, imageUrl, geoCoordinates, rating, descriptions and suggest itinerary with name, details, imageUrl, geoCoordinates, ticketPricing, travelTime each of the location for ${tripDays} days with each day plan with best time to visit in JSON format`;
+      const response = await chatSession.sendMessage(prompt);
 
-    console.log(result);
-    form.reset();
-    toast.success("Successfully toasted!");
+      const result = response.response.text();
+
+      form.reset();
+      toast.success("Trip plan successfully created!");
+    } catch (error) {
+      toast.error("Sorry something went!");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -240,9 +250,28 @@ const CreateTripForm = () => {
             />
 
             <Separator></Separator>
-            <Button type="submit" className="w-full" size={"lg"}>
-              Generate Trip <FaPaperPlane className="ml-2 w-4 h-4" />
-            </Button>
+            {generating ? (
+              <Button
+                type="submit"
+                className="w-full"
+                size={"lg"}
+                disabled={generating}
+              >
+                Generating Travel Plan{" "}
+                <TbFidgetSpinner className="ml-2 w-4 h-4 animate-spin" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full"
+                size={"lg"}
+                disabled={generating}
+              >
+                Generate Trip <FaPaperPlane className="ml-2 w-4 h-4" />
+              </Button>
+            )}
+
+            {generating && <TripLoader loading={generating}></TripLoader>}
           </form>
         </Form>
       </CardContent>
