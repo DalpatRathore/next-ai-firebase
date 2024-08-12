@@ -113,36 +113,3 @@ const TripDetailPage = async ({ params }: TripDetailPageProps) => {
 };
 
 export default TripDetailPage;
-
-// import DetailCard from "@/components/DetailCard";
-// import { db } from "@/service/firebase-config";
-// import { collection, getDocs } from "firebase/firestore";
-// import React from "react";
-// type TripDetailPageProps = {
-//   params: { tripId: string };
-// };
-// const TripDetailPage = async ({ params }: TripDetailPageProps) => {
-//   //   console.log(params.tripId);
-
-//   const collectionRef = collection(db, "tripsAi");
-
-//   const tripsCollectionSnapshot = await getDocs(collectionRef);
-//   const tripsList = tripsCollectionSnapshot.docs.map(doc => ({
-//     ...doc.data(),
-//     id: doc.id,
-//   }));
-//   console.log(tripsList);
-
-//   return (
-//     <main className="min-h-screen px-5 py-10 space-y-10">
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-//         <DetailCard></DetailCard>
-//         <DetailCard></DetailCard>
-//         <DetailCard></DetailCard>
-//         <DetailCard></DetailCard>
-//       </div>
-//     </main>
-//   );
-// };
-
-// export default TripDetailPage;
