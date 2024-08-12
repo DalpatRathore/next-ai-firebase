@@ -42,7 +42,6 @@ const TripDetailPage = async ({ params }: TripDetailPageProps) => {
   const { budgetType, destination, travelWith, tripDays } =
     tripInfo.userSelection;
   const { userEmail } = tripInfo;
-
   return (
     <main className="min-h-screen px-5 py-10 space-y-10">
       <div className="flex items-center justify-center gap-5">

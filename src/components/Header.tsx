@@ -10,6 +10,7 @@ import {
 import ThemeToggle from "./ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { MdViewDay } from "react-icons/md";
 
 type UserInfoProps = {
   name: string;
@@ -62,6 +63,16 @@ const Header = () => {
                 <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
               </Avatar>
             </div>
+            <Button
+              size={"icon"}
+              title="View Trips"
+              variant={"outline"}
+              asChild
+            >
+              <Link href={"/view-trips"}>
+                <MdViewDay />
+              </Link>
+            </Button>
             <Button
               size={"icon"}
               title="logout"
