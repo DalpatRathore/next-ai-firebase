@@ -14,6 +14,9 @@ import {
 } from "react-icons/fa6";
 import { Separator } from "@/components/ui/separator";
 import NoTrip from "@/components/NoTrip";
+import ItineraryCard from "@/components/ItineraryCard";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type TripDetailPageProps = {
   params: { tripId: string };
@@ -28,11 +31,11 @@ const TripDetailPage = async ({ params }: TripDetailPageProps) => {
   if (docSnapshot.exists()) {
     const tripData = docSnapshot.data() as CompleteTripData;
     tripInfo = tripData;
-    console.log("Trip data:", tripData);
+    // console.log("Trip data:", tripData);
   } else {
     console.log("No such document!");
   }
-  console.log(tripInfo);
+  // console.log(tripInfo);
   if (!tripInfo) {
     return <NoTrip></NoTrip>;
   }
@@ -87,7 +90,23 @@ const TripDetailPage = async ({ params }: TripDetailPageProps) => {
       </div>
       <Separator></Separator>
       <div className="w-full">
+        <h2 className="text-3xl font-bold mb-5 md:mb-10">
+          🏨 Hotels for Reservation
+        </h2>
         <DetailCard tripInfo={tripInfo}></DetailCard>
+      </div>
+      <Separator></Separator>
+      <div className="w-full">
+        <h2 className="text-3xl font-bold mb-5 md:mb-10">
+          🧳Itinerary Information
+        </h2>
+        <ItineraryCard tripInfo={tripInfo}></ItineraryCard>
+      </div>
+      <Separator></Separator>
+      <div className="flex items-center justify-center">
+        <Button asChild variant={"default"}>
+          <Link href={"/view-trips"}>Back to Trips</Link>
+        </Button>
       </div>
     </main>
   );

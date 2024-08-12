@@ -18,15 +18,7 @@ const DetailCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
   return (
     <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
       {hotel_options.map((option, i) => {
-        const {
-          name,
-          address,
-          description,
-          geo_coordinates,
-          image_url,
-          price,
-          rating,
-        } = option;
+        const { name, address, description, price, rating } = option;
         return (
           <div className="w-full relative border rounded-xl p-1" key={i}>
             <DirectionAwareHover imageUrl={imageUrl}>

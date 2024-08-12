@@ -64,7 +64,7 @@ const formSchema = z.object({
       z
         .number()
         .min(1, { message: "The number of days must be at least 1" })
-        .max(30, { message: "The number of days cannot exceed 30" })
+        .max(7, { message: "The number of days cannot exceed 7" })
     ),
   budgetType: z.enum(["cheap", "moderate", "luxury"], {
     required_error: "Please select one budget type.",
@@ -99,7 +99,7 @@ const CreateTripForm = () => {
           userEmail: userInfo?.email,
           id: docId,
         });
-        router.push(`view-trip/${docId}`);
+        router.push(`view-trips/${docId}`);
       } catch (error) {
         toast.error("Something went wrong!");
       }
@@ -116,13 +116,16 @@ const CreateTripForm = () => {
       setGenerating(true);
       const { destination, budgetType, travelWith, tripDays } = values;
 
-      const prompt = `Generate Travel Plan for Location: ${destination}, for ${tripDays} Days for ${travelWith} with a ${budgetType} budget. Give me a hotels options list with name, address, price, imageUrl, geoCoordinates, rating, descriptions and suggest itinerary with name, details, imageUrl, geoCoordinates, ticketPricing, travelTime each of the location for ${tripDays} days with each day plan with best time to visit in JSON format`;
+      const prompt = `Generate a Travel Plan for Location: ${destination}, for ${tripDays} Days, for ${travelWith}, with a ${budgetType} budget. Provide a list of hotel options with the following fields: name, address, price, imageUrl, geoCoordinates, rating, and descriptions. Additionally, suggest an itinerary for each of the ${tripDays} days as an array with the following fields: name, details, imageUrl, geoCoordinates, ticketPricing, travelTime, and best time to visit. If any field is unavailable, use "N/A" as the value. Ensure the result is in JSON format and maintain the same JSON format even if the places or days change.`;
       const response = await chatSession.sendMessage(prompt);
 
       const result = response.response.text();
-      toast.success("Trip plan successfully created!");
-      saveDatatoDB(values, result);
-      form.reset();
+
+      if (result) {
+        toast.success("Trip plan successfully created!");
+        saveDatatoDB(values, result);
+        form.reset();
+      }
     } catch (error) {
       toast.error("Sorry something went!");
     } finally {
