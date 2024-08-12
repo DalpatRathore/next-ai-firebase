@@ -48,6 +48,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/service/firebase-config";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -75,6 +76,8 @@ const formSchema = z.object({
 });
 
 const CreateTripForm = () => {
+  const router = useRouter();
+
   const [openDialog, setOpenDialog] = React.useState(false);
   const [generating, setGenerating] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -96,6 +99,7 @@ const CreateTripForm = () => {
           userEmail: userInfo?.email,
           id: docId,
         });
+        router.push(`view-trip/${docId}`);
       } catch (error) {
         toast.error("Something went wrong!");
       }
