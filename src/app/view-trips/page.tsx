@@ -1,6 +1,6 @@
 import React from "react";
 import { db } from "@/service/firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, where } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,6 @@ import {
 } from "react-icons/fa6";
 import { GiCommercialAirplane } from "react-icons/gi";
 import { Separator } from "@/components/ui/separator";
-import NoTrip from "@/components/NoTrip";
 
 const ViewTripsPage = async () => {
   const collectionRef = collection(db, "tripsAi");
@@ -37,7 +36,7 @@ const ViewTripsPage = async () => {
       };
     }
   );
-  console.log(tripsList);
+  // console.log(tripsList);
 
   return (
     <main className="w-full min-h-screen px-5 py-10 space-y-10 my-10">

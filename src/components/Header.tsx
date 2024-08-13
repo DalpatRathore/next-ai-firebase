@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import {
@@ -9,41 +9,15 @@ import {
 } from "react-icons/fa6";
 import ThemeToggle from "./ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
 import { MdViewDay } from "react-icons/md";
 import { PlusIcon } from "@radix-ui/react-icons";
-
-type UserInfoProps = {
-  name: string;
-  picture: string;
-  email: string;
-  emailVerified: boolean;
-};
+import useCheckUser from "@/hooks/useCheckUser";
+import useGoogleAuth from "@/hooks/useGoogleAuth";
 
 const Header = () => {
-  const [user, setUser] = useState<UserInfoProps | null>(null);
-  const router = useRouter();
+  const { user, logout } = useCheckUser();
+  const { login } = useGoogleAuth();
 
-  const getUserfromLocalstorage = () => {
-    const userInfo = localStorage.getItem("Guser");
-    if (userInfo) {
-      const parsedUser: UserInfoProps = JSON.parse(userInfo);
-      setUser(parsedUser);
-    } else {
-      setUser(null);
-    }
-  };
-
-  useEffect(() => {
-    if (typeof localStorage !== "undefined") {
-      getUserfromLocalstorage();
-    }
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("Guser");
-    router.refresh();
-  };
   return (
     <header className="w-full flex items-center justify-between shadow-sm border-b p-5">
       <Link href={"/"}>
@@ -95,7 +69,11 @@ const Header = () => {
           </div>
         ) : (
           <div>
-            <Button size={"lg"} className="hidden md:flex">
+            <Button
+              size={"lg"}
+              className="hidden md:flex"
+              onClick={() => login()}
+            >
               <FaArrowRightToBracket className="mr-2" />
               Login
             </Button>

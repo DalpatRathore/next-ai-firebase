@@ -30,12 +30,9 @@ import { Separator } from "./ui/separator";
 import { RxActivityLog } from "react-icons/rx";
 import toast from "react-hot-toast";
 import { chatSession } from "@/service/gemini-api-ai";
-
 import { TbFidgetSpinner } from "react-icons/tb";
 import TripLoader from "./TripLoader";
 import { FaGoogle } from "react-icons/fa";
-
-import axios from "axios";
 
 import {
   Dialog,
@@ -44,11 +41,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/service/firebase-config";
 import { useRouter } from "next/navigation";
+import useGoogleAuth from "@/hooks/useGoogleAuth";
+import useCheckUser from "@/hooks/useCheckUser";
 
 const formSchema = z.object({
   destination: z.string().min(2, {
@@ -78,8 +76,11 @@ const formSchema = z.object({
 const CreateTripForm = () => {
   const router = useRouter();
 
-  const [openDialog, setOpenDialog] = React.useState(false);
+  const { login } = useGoogleAuth();
+  const { user } = useCheckUser();
+
   const [generating, setGenerating] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,15 +89,13 @@ const CreateTripForm = () => {
     },
   });
   const saveDatatoDB = async (values: any, result: any) => {
-    const user = localStorage.getItem("Guser");
     if (user) {
       const docId = Date.now().toString();
-      const userInfo = JSON.parse(user);
       try {
         const respponse = await setDoc(doc(db, "tripsAi", docId), {
           userSelection: values,
           tripData: JSON.parse(result),
-          userEmail: userInfo?.email,
+          userEmail: user.email,
           id: docId,
         });
         console.log(respponse);
@@ -111,11 +110,6 @@ const CreateTripForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const user = localStorage.getItem("Guser");
-      if (!user) {
-        setOpenDialog(true);
-        return;
-      }
       setGenerating(true);
       const { destination, budgetType, travelWith, tripDays } = values;
 
@@ -167,7 +161,7 @@ const CreateTripForm = () => {
       const response = await chatSession.sendMessage(prompt);
 
       const result = response.response.text();
-      console.log(result);
+      // console.log(result);
 
       if (result) {
         saveDatatoDB(values, result);
@@ -179,44 +173,43 @@ const CreateTripForm = () => {
     }
   };
 
-  const getUserInfo = (tokenInfo: any) => {
-    axios
-      .get(
-        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenInfo?.access_token}`,
-        {
-          headers: {
-            Authorization: `Bearer: ${tokenInfo?.access_token}`,
-            Accept: "Application/json",
-          },
-        }
-      )
-      .then(response => {
-        const userInfo = {
-          name: response.data.name,
-          email: response.data.email,
-          picture: response.data.picture,
-          userId: response.data.sub,
-          accessToken: tokenInfo.access_token,
-        };
+  // const getUserInfo = (tokenInfo: any) => {
+  //   axios
+  //     .get(
+  //       `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenInfo?.access_token}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer: ${tokenInfo?.access_token}`,
+  //           Accept: "Application/json",
+  //         },
+  //       }
+  //     )
+  //     .then(response => {
+  //       const userInfo = {
+  //         name: response.data.name,
+  //         email: response.data.email,
+  //         picture: response.data.picture,
+  //         userId: response.data.sub,
+  //         accessToken: tokenInfo.access_token,
+  //       };
 
-        localStorage.setItem("Guser", JSON.stringify(userInfo));
-        toast.success("Login successfully!");
+  //       localStorage.setItem("Guser", JSON.stringify(userInfo));
+  //       toast.success("Login successfully!");
+  //       window.location.reload();
+  //       setOpenDialog(false);
+  //     });
+  // };
 
-        setOpenDialog(false);
-      });
-  };
-
-  const login = useGoogleLogin({
-    onSuccess: tokenResponse => {
-      // console.log(tokenResponse);
-      getUserInfo(tokenResponse);
-    },
-    onError: err => console.log(err),
-  });
+  // const login = useGoogleLogin({
+  //   onSuccess: tokenResponse => {
+  //     getUserInfo(tokenResponse);
+  //   },
+  //   onError: err => console.log(err),
+  // });
 
   return (
     <>
-      <Dialog open={openDialog}>
+      {/* <Dialog open={openDialog}>
         <DialogContent>
           <DialogHeader className="space-y-8">
             <DialogTitle className="flex items-center justify-center gap-2 capitalize">
@@ -236,7 +229,7 @@ const CreateTripForm = () => {
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
       <Card className="w-full max-w-7xl mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="capitalize text-xl">
