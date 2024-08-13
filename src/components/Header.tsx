@@ -11,6 +11,7 @@ import ThemeToggle from "./ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { MdViewDay } from "react-icons/md";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 type UserInfoProps = {
   name: string;
@@ -63,6 +64,16 @@ const Header = () => {
                 <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
               </Avatar>
             </div>
+            <Button
+              size={"icon"}
+              title="Create Trip"
+              variant={"outline"}
+              asChild
+            >
+              <Link href={"/create-trip"}>
+                <PlusIcon />
+              </Link>
+            </Button>
             <Button
               size={"icon"}
               title="View Trips"

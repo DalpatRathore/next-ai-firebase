@@ -47,7 +47,7 @@ const ViewTripsPage = async () => {
             const { budgetType, destination, travelWith, tripDays } =
               trip.userSelection;
             const { userEmail } = trip;
-            const { hotel_options } = trip.tripData;
+            const { hotels } = trip.tripData;
             const { itinerary } = trip.tripData;
             return (
               <Card className="w-full max-w-lg" key={i}>
@@ -96,7 +96,7 @@ const ViewTripsPage = async () => {
                       <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                       <FaHotel />
                       <p className="text-base font-medium leading-none capitalize flex">
-                        hotels for reseravation - {hotel_options.length}
+                        hotels for reseravation - {hotels.length}
                       </p>
                     </div>
 
@@ -119,7 +119,6 @@ const ViewTripsPage = async () => {
               </Card>
             );
           })}
-          )
         </div>
       ) : (
         <div className="w-full md:h-96 flex items-center justify-center">

@@ -93,12 +93,15 @@ const CreateTripForm = () => {
       const docId = Date.now().toString();
       const userInfo = JSON.parse(user);
       try {
-        await setDoc(doc(db, "tripsAi", docId), {
+        const respponse = await setDoc(doc(db, "tripsAi", docId), {
           userSelection: values,
           tripData: JSON.parse(result),
           userEmail: userInfo?.email,
           id: docId,
         });
+        console.log(respponse);
+        toast.success("Trip plan successfully created!");
+        form.reset();
         router.push(`view-trips/${docId}`);
       } catch (error) {
         toast.error("Something went wrong!");
@@ -116,15 +119,58 @@ const CreateTripForm = () => {
       setGenerating(true);
       const { destination, budgetType, travelWith, tripDays } = values;
 
-      const prompt = `Generate a Travel Plan for Location: ${destination}, for ${tripDays} Days, for ${travelWith}, with a ${budgetType} budget. Provide a list of hotel options with the following fields: name, address, price, imageUrl, geoCoordinates, rating, and descriptions. Additionally, suggest an itinerary for each of the ${tripDays} days as an array with the following fields: name, details, imageUrl, geoCoordinates, ticketPricing, travelTime, and best time to visit. If any field is unavailable, use "N/A" as the value. Ensure the result is in JSON format and maintain the same JSON format even if the places or days change.`;
+      // const prompt = `Generate a Travel Plan for Location: ${destination}, for ${tripDays} Days, for ${travelWith}, with a ${budgetType} budget. Provide a list of hotel options with the following fields: name, address, price, imageUrl, geoCoordinates, rating, and descriptions. Additionally, suggest an itinerary for each of the ${tripDays} days as an array with the following fields: name, details, imageUrl, geoCoordinates, ticketPricing, travelTime, and best time to visit. If any field is unavailable, use "N/A" as the value. Ensure the result is in JSON format and maintain the SAME JSON format every time even if the places or days change.`;
+
+      const prompt = `
+      Generate a Travel Plan for the location: ${destination} for ${tripDays} days, traveling with ${travelWith}, within a ${budgetType} budget. 
+      
+      Provide a list of hotel options in the following fixed JSON format:
+      
+      {
+        "hotels": [
+          {
+            "name": "string",
+            "address": "string",
+            "price": "string",
+            "imageUrl": "string",
+            "geoCoordinates": [number, number],
+            "rating": "number",
+            "descriptions": "string"
+          }
+        ]
+      }
+      
+      Also, suggest an itinerary in the following fixed JSON format for each of the ${tripDays} days:
+      
+      {
+        "itinerary": [
+          {
+            "day": number,
+            "schedule": [
+              {
+                "name": "string",
+                "details": "string",
+                "imageUrl": "string",
+                "geoCoordinates": [number, number],
+                "ticketPricing": "string",
+                "travelTime": "string",
+                "bestTimeToVisit": "string"
+              }
+            ]
+          }
+        ]
+      }
+      
+      If any field is unavailable, use "N/A" as the value. The output should strictly adhere to this JSON format, regardless of the number of days or locations.
+      `;
+
       const response = await chatSession.sendMessage(prompt);
 
       const result = response.response.text();
+      console.log(result);
 
       if (result) {
-        toast.success("Trip plan successfully created!");
         saveDatatoDB(values, result);
-        form.reset();
       }
     } catch (error) {
       toast.error("Sorry something went!");

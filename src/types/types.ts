@@ -1,11 +1,16 @@
-export type Itinerary = {
+export type ItineraryItem = {
   name: string;
-  geoCoordinates: [number, number];
-  travelTime: string;
-  ticketPricing: string;
   details: string;
-  bestTimeToVisit: string;
   imageUrl: string;
+  geoCoordinates: [number | "N/A", number | "N/A"];
+  ticketPricing: string;
+  travelTime: string;
+  bestTimeToVisit: string;
+};
+
+export type ItineraryDay = {
+  day: number;
+  schedule: ItineraryItem[];
 };
 
 type HotelOption = {
@@ -15,14 +20,14 @@ type HotelOption = {
   imageUrl: string;
   geoCoordinates: [number, number];
   rating: number;
-  description: string;
+  descriptions: string;
 };
 
 export type CompleteTripData = {
   id: string;
   tripData: {
-    itinerary: Itinerary[];
-    hotel_options: HotelOption[];
+    itinerary: ItineraryDay[];
+    hotels: HotelOption[];
   };
   userEmail: string;
   userSelection: {

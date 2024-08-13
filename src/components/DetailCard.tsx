@@ -12,13 +12,13 @@ const DetailCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
   // console.log(tripInfo);
   const imageUrl = "/trip-banner.jpg";
 
-  const { hotel_options, itinerary } = tripInfo.tripData;
+  const { hotels, itinerary } = tripInfo.tripData;
 
-  console.log(itinerary);
+  console.log(tripInfo.tripData);
   return (
     <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
-      {hotel_options.map((option, i) => {
-        const { name, address, description, price, rating } = option;
+      {hotels.map((option, i) => {
+        const { name, address, descriptions, price, rating } = option;
         return (
           <div className="w-full relative border rounded-xl p-1" key={i}>
             <DirectionAwareHover imageUrl={imageUrl}>
@@ -42,9 +42,8 @@ const DetailCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
                 <IoLocation className="w-5 h-5" />
                 {address}
               </p>
-              <p className="text-base flex items-center justify-start gap-2">
-                <MdDescription className="w-10 h-10 -translate-y-5" />
-                {description}
+              <p className="text-base flex items-start justify-start gap-2">
+                {descriptions}
               </p>
             </div>
             <Map address={address}></Map>
