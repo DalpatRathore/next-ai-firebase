@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
 import {getFirestore} from 'firebase/firestore';
 
-console.log(process.env.FIREBASE_API_KEY);
-console.log(process.env.FIREBASE_AUTH_DOMAIN);
+// console.log(process.env.FIREBASE_API_KEY);
+// console.log(process.env.FIREBASE_AUTH_DOMAIN);
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -13,6 +13,8 @@ const firebaseConfig = {
     appId: process.env.FIREBASE_APP_ID,
     measurementId: process.env.FIREBASE_MEASUREMENT_ID,
   };
+
+
 
 
 
