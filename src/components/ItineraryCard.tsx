@@ -1,10 +1,9 @@
 import { CompleteTripData } from "@/types/types";
 import React from "react";
 import { Badge } from "./ui/badge";
-import { FaCalendarDay } from "react-icons/fa6";
 
 const ItineraryCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
-  const { itinerary } = tripInfo.tripData;
+  const { itinerary = [] } = tripInfo.tripData;
 
   return (
     <div className="space-y-6">
@@ -15,7 +14,10 @@ const ItineraryCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
           </h2>
           <div className="grid grid-col-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {dayPlan.schedule.map((plan, i) => (
-              <div className="rounded-lg border p-8 shadow-sm" key={i}>
+              <div
+                className="rounded-lg border p-8 shadow-sm transition duration-300 hover:scale-105"
+                key={i}
+              >
                 <div className="flex-1 space-y-3">
                   <h3 className="text-lg font-medium border-b pb-2">
                     {plan.name}

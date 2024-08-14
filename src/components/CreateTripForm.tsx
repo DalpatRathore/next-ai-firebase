@@ -103,7 +103,7 @@ const CreateTripForm = () => {
         form.reset();
         router.push(`view-trips/${docId}`);
       } catch (error) {
-        toast.error("Something went wrong!");
+        toast.error("Something went wrong!, Try again");
       }
     }
   };
@@ -167,7 +167,7 @@ const CreateTripForm = () => {
         saveDatatoDB(values, result);
       }
     } catch (error) {
-      toast.error("Sorry something went!");
+      toast.error("Something went wrong! Try again.");
     } finally {
       setGenerating(false);
     }

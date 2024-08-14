@@ -46,10 +46,13 @@ const ViewTripsPage = async () => {
             const { budgetType, destination, travelWith, tripDays } =
               trip.userSelection;
             const { userEmail } = trip;
-            const { hotels } = trip.tripData;
-            const { itinerary } = trip.tripData;
+            const { hotels = [] } = trip.tripData;
+            const { itinerary = [] } = trip.tripData;
             return (
-              <Card className="w-full max-w-lg" key={i}>
+              <Card
+                className="w-full max-w-lg transition duration-300 hover:scale-105"
+                key={i}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center justify-end gap-1 italic">
                     <FaEnvelope />

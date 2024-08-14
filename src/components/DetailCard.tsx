@@ -12,9 +12,9 @@ const DetailCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
   // console.log(tripInfo);
   const imageUrl = "/trip-banner.jpg";
 
-  const { hotels, itinerary } = tripInfo.tripData;
+  const { hotels = [] } = tripInfo.tripData;
 
-  console.log(tripInfo.tripData);
+  // console.log(tripInfo.tripData);
   return (
     <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
       {hotels.map((option, i) => {
@@ -56,8 +56,8 @@ const DetailCard = ({ tripInfo }: { tripInfo: CompleteTripData }) => {
 
 export default DetailCard;
 
-function Map({ address }: any) {
-  console.log(address);
+function Map({ address }: { address: string }) {
+  // console.log(address);
   const src = `https://maps.google.com/maps?&q=+${address}&output=embed`;
 
   return (
